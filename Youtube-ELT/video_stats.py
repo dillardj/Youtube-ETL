@@ -1,12 +1,12 @@
-from urllib import response
-
 import requests
 import json
 
 import os
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path="./.env")  # Load environment variables from .env file
+# Always resolve .env relative to this file, not the launch working directory.
+ENV_PATH = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(dotenv_path=ENV_PATH)
 
 
 API_KEY = os.getenv("YOUTUBE_API_KEY")
@@ -15,6 +15,8 @@ CHANNEL_HANDLE = "MrBeast"
 def get_playlist_id():
 
     try:
+        if not API_KEY:
+            raise ValueError(f"Missing YOUTUBE_API_KEY. Checked: {ENV_PATH}")
 
         url = f"https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={CHANNEL_HANDLE}&key={API_KEY}"
 
@@ -33,7 +35,7 @@ def get_playlist_id():
         print(channel_playlistId)
         
         return channel_playlistId
-    except requests.exceptions.RequestException as e:
+    except (requests.exceptions.RequestException, ValueError) as e:
         raise e
         #print("An error occurred while fetching the playlist ID.")
 
